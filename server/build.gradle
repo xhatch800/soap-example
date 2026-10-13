@@ -1,0 +1,55 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+configurations {
+    cxfCodegen
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation "org.apache.cxf:cxf-spring-boot-starter-jaxws:${cxfVersion}"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    cxfCodegen "org.apache.cxf:cxf-tools-wsdlto-frontend-jaxws:${cxfVersion}"
+    cxfCodegen "org.apache.cxf:cxf-tools-wsdlto-databinding-jaxb:${cxfVersion}"
+}
+
+// ---- WSDL -> Java code generation (CXF wsdl2java) ----
+def contractDir = rootProject.file('contract')
+def generatedDir = layout.buildDirectory.dir('generated/sources/wsdl2java')
+
+def wsdl2java = tasks.register('wsdl2java', JavaExec) {
+    group = 'build'
+    description = 'Generates JAX-WS classes from contract/movies.wsdl'
+    inputs.dir(contractDir)
+    outputs.dir(generatedDir)
+    classpath = configurations.cxfCodegen
+    mainClass = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+    args '-d', generatedDir.get().asFile.path,
+         '-wsdlLocation', 'classpath:wsdl/movies.wsdl',
+         '-p', 'http://example.com/movies/v1=com.example.movies.v1',
+         new File(contractDir, 'movies.wsdl').path
+}
+
+// Adding the task as a source dir also makes compileJava depend on it.
+sourceSets.main.java.srcDir(wsdl2java)
+
+// Ship the contract on the classpath so the endpoint serves the hand-written WSDL.
+processResources {
+    from(contractDir) {
+        include '*.wsdl', '*.xsd'
+        into 'wsdl'
+    }
+}
+
+bootJar {
+    archiveFileName = 'server.jar'
+}
+
+jar {
+    enabled = false
+}

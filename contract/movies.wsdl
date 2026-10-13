@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="MovieService"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:tns="http://example.com/movies/v1"
+                  targetNamespace="http://example.com/movies/v1">
+
+    <wsdl:types>
+        <xs:schema>
+            <xs:import namespace="http://example.com/movies/v1" schemaLocation="movies.xsd"/>
+        </xs:schema>
+    </wsdl:types>
+
+    <wsdl:message name="searchMoviesRequest">
+        <wsdl:part name="parameters" element="tns:searchMovies"/>
+    </wsdl:message>
+    <wsdl:message name="searchMoviesResponse">
+        <wsdl:part name="parameters" element="tns:searchMoviesResponse"/>
+    </wsdl:message>
+
+    <wsdl:portType name="MoviePort">
+        <wsdl:operation name="searchMovies">
+            <wsdl:input message="tns:searchMoviesRequest"/>
+            <wsdl:output message="tns:searchMoviesResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="MovieSoapBinding" type="tns:MoviePort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="searchMovies">
+            <soap:operation soapAction=""/>
+            <wsdl:input><soap:body use="literal"/></wsdl:input>
+            <wsdl:output><soap:body use="literal"/></wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="MovieService">
+        <wsdl:documentation>Hand-written contract-first Movie service</wsdl:documentation>
+        <wsdl:port name="MoviePort" binding="tns:MovieSoapBinding">
+            <!-- Default address only; clients override it at runtime. -->
+            <soap:address location="http://localhost:8080/services/movies"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

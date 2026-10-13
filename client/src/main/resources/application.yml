@@ -1,0 +1,10 @@
+server:
+  port: 8081
+
+movies:
+  soap:
+    # Where SOAP requests are sent. Override without rebuilding:
+    #   MOVIES_SOAP_ENDPOINT=http://host:port/services/movies  or  --movies.soap.endpoint=...
+    endpoint: http://localhost:8080/services/movies
+    connect-timeout: 2s
+    receive-timeout: 5s

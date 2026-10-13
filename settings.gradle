@@ -1,0 +1,3 @@
+rootProject.name = 'soap-examples'
+
+include 'server', 'client'
